@@ -1,0 +1,6 @@
+*.txt
+*.ckpt
+*.meta
+*.ipynb
+*.pyc
+checkpoint
