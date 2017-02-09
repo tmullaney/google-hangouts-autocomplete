@@ -25,7 +25,7 @@ import os
 
 from model import CharRNN
 
-TRAINING_ITERS = 100000 # 1000 takes about 2 hrs
+TRAINING_ITERS = 100000 # on my machine, 1000 takes about 70 mins
 BATCH_SIZE = 100 # sequences
 
 ### Load and preprocess data

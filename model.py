@@ -126,7 +126,9 @@ class CharRNN(object):
 
         # Predict scores and softmax probs
         scores = sess.run(self.logits, feed_dict={self.x:seed_x, self.seqlen:[len(input_seq)]})
-        probs = np.exp(scores / temperature) / np.sum(np.exp(scores / temperature), axis=1, keepdims=True)
+        # probs = np.exp(scores / temperature) / np.sum(np.exp(scores / temperature), axis=1, keepdims=True)
+        norm = np.exp(scores - np.max(scores)) # normalize to prevent overflow
+        probs = norm / np.array([np.sum(norm, axis=1)]).T
         
         return probs[len(input_seq)-1]
     

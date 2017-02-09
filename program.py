@@ -5,7 +5,7 @@ Given a trained model and a context, outputs either autocomplete options or samp
 
 Arguments:
     mode: autocomplete OR sample
-    model_dir: directory containing model and character map
+    model_dir: directory containing model and character map produced by train.py
 
 Example call:
     python program.py autocomplete ./2017-02-07 00:37:16.540126
@@ -23,7 +23,13 @@ Example autocomplete:
 5. yeah that's pretty sure
 
 Example sample:
-
+<Other Person> although the recopding is going to be a little series about the presentation is going to be a but we can do it
+<Other Person> and I can't wait until here
+<Other Person> hahaha
+<Tommy Mullaney> what about the cool schemically sounds good to me
+<Other Person> how's the best enough haha
+<Other Person> alright I'm going to try the over a little bit of a second readons
+<Other Person> hahaha yeah but you can see a nice but of stuff like that are more super
 
 '''
 
@@ -83,7 +89,8 @@ with tf.Session() as sess:
             if line == 'quit':
                 print('Goodbye...')
                 break # exit program
-
+            
+            print('Sampling...')
             if input_seq is None:
                 input_seq = np.random.choice(vocab) # pick random character
             sample = model.sample(sess, input_seq=input_seq, num_to_sample=500, temperature=0.5)
