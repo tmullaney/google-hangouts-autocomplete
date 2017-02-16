@@ -78,7 +78,7 @@ with tf.Session() as sess:
 
             print('Thinking...')
             input_seq = '\n'.join(lines)
-            results = model.autocomplete(sess, input_seq, n=5)
+            results = model.autocomplete(sess, input_seq)
             print('Autocomplete:')
             for i, r in enumerate(results):
                 print('{0}. {1}'.format(i+1, r[len(input_seq):][:-1])) # skip context and trailing newline char

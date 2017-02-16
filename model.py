@@ -147,12 +147,12 @@ class CharRNN(object):
             
         return ''.join(return_sequence)
 
-    def autocomplete(self, sess, input_seq, n=5, m=3):
+    def autocomplete(self, sess, input_seq, num_responses=5, n=20, m=10, verbose=False):
         '''
-        Returns the three most probable responses to a given input character sequence.
-        Uses beam search terminated at a newline character.
+        Returns the `num_responses` most probable responses to a given input character sequence.
+        Uses modified beam search terminated at a newline character.
 
-        n: size of beam (number of autocomplete options)
+        n: size of beam (the rest are pruned out)
         m: number of children to expand per node
         '''
         hypotheses = [] # each element is (-prob, sequence)
@@ -161,26 +161,30 @@ class CharRNN(object):
         non_results = []
 
         depth = 0
-        while len(results) < n:
+        while len(results) < num_responses:
             depth += 1
-
+            if verbose:
+                print('--', depth)
             # Expand the top 'n' hypothesis's best 'n' next chars each
             hypotheses.sort()
             children = []
             for neg_p, seq in hypotheses[:n]:
                 probs = self.predict_next(sess, seq)
-                top_n_char_idx = list(np.argsort(probs)[::-1])[:n] # indices sorted from most to least probable
+                top_n_char_idx = list(np.argsort(probs)[::-1])[:m] # indices sorted from most to least probable
                 for i in top_n_char_idx:
                     c = self.vocab[i]
                     p = probs[i]
                     new_seq = seq + c
+                    if depth > 1 and p < 0.05:
+                        continue # don't pursue low-probability options
+                    if verbose and depth < 20:
+                        print(p, '\t\t', repr(new_seq[len(input_seq):]), '\t\t', neg_p*p)
                     if c == '\n': 
-                        # Must have high confidence in newline character
-                        if i == top_n_char_idx[0]: 
+                        if top_n_char_idx.index(i) == 0: # need high confidence in newline char
                             results.append(new_seq)
                             break # to increase diversity, stop pursuing this subtree
                     else:
-                        children.append([neg_p * p, new_seq])
+                        children.append([neg_p*p, new_seq])
             
             # Children become the next round of hypotheses
             hypotheses = children
@@ -189,4 +193,4 @@ class CharRNN(object):
                 # Bail out, can't find a good autocomplete
                 break
 
-        return results[:n]
+        return results[:num_responses]
